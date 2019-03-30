@@ -1,0 +1,145 @@
+﻿@model ang_fin.Models.Employee
+<div ng-controller="myctrl" class="text-center" ng-init="LoadData()">
+    <form name="myForm">
+        <table class="table table-bordered">
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            <tr ng-repeat="emp in employees">
+                <td>{{emp.Id}}</td>
+                <td>{{emp.Name}}</td>
+                <td>{{emp.Email}}</td>
+                <td>
+                    <input type="button" value="DeleteData" ng-click="DeleteData(emp)" class="btn btn-danger" />
+                    <input type="button" value="UpdateData" ng-click="UpdateData(emp)" class="btn btn-primary" />
+                </td>
+            </tr>
+        </table>
+        <table class="table table-bordered" role="form">
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="text-center form-control" required ng-model="Id" readonly name="myInput" />
+                </td>
+                <td>
+                    <input type="text" class="text-center form-control" required ng-model="Name" name="myInput" />
+
+                </td>
+                <td>
+                    <input type="text" class="text-center form-control" required ng-model="Email" name="myInput" />
+
+                </td>
+                <td>
+                    <input type="button" value="Submit" id="bts" ng-click="SaveData()" class="btn btn-success" />
+                </td>
+            </tr>
+        </table>
+    </form>
+
+</div>
+
+@section scripts
+{
+    <script src="~/Scripts/angular.min.js"></script>
+    <script>
+        var app = angular.module("myapp", [])
+            .controller("myctrl", function ($scope, $http)
+            {
+                $scope.SaveData = function ()
+                {
+
+                    if (document.getElementById("bts").value == "Submit")
+                    {
+
+                        $scope.emp = {};
+                        $scope.emp.Id = $scope.Id;
+                        $scope.emp.Name = $scope.Name;
+                        $scope.emp.Email = $scope.Email;
+                        $http(
+                            {
+                                url: "/Home/SaveData/",
+                                dataType: "Json",
+                                method: "post",
+                                data: JSON.stringify($scope.emp)
+                            }).then(function (res)
+                            {
+                                alert(res.data);
+                                $scope.LoadData();
+                                $scope.Id = "";
+                                $scope.Name = "";
+                                $scope.Email = "";
+                            })
+                    }
+                    else
+                    {
+                        $scope.emp = {};
+                        $scope.emp.Id = $scope.Id;
+                        $scope.emp.Name = $scope.Name;
+                        $scope.emp.Email = $scope.Email;
+                        $http(
+                            {
+                                url: "/Home/UpdateData/",
+                                dataType: "json",
+                                method: "post",
+                                data: JSON.stringify($scope.emp)
+                            }).then(function (res)
+                            {
+                                alert(res.data);
+                                $scope.LoadData();
+                                $scope.Id = "";
+                                $scope.Name = "";
+                                $scope.Email = "";
+                            })
+                    }
+                    document.getElementById("bts").setAttribute("Value", "Submit");
+                }
+
+                $scope.LoadData = function ()
+                {
+                    $http(
+                        {
+                            url: "/Home/LoadData/",
+                            dataType: "json",
+                            method: "post"
+                        }).then(function (res)
+                        {
+                            $scope.employees = res.data;
+                        })
+                }
+
+                $scope.DeleteData = function (stu)
+                {
+                    $http(
+                        {
+                            url: "/Home/DeleteData/",
+                            dataType: "json",
+                            method: "post",
+                            data: JSON.stringify(stu)
+                        }).then(function (res)
+                        {
+                            alert(res.data);
+                            $scope.LoadData();
+                            $scope.id = "";
+                            $scope.Name = "";
+                            $scope.Email = "";
+                        })
+                }
+
+                $scope.UpdateData = function (emp)
+                {
+                    $scope.Id = emp.Id;
+                    $scope.Name = emp.Name;
+                    $scope.Email = emp.Email;
+                    document.getElementById("bts").setAttribute("Value", "Update");
+                }
+            })
+    </script>
+}
